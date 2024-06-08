@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gioco del Ghetto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .game-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .points {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .word {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .guess-input {
+            margin-bottom: 20px;
+        }
+        .guess-input input {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            max-width: 300px;
+        }
+        .guess-input button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="points">Punti aura: <span id="points">0</span></div>
+        <div class="word" id="word">Parola: </div>
+        <div class="guess-input">
+            <input type="text" id="guess" placeholder="Definizione">
+            <button onclick="checkGuess()">Indovina</button>
+        </div>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const definitions = {
+            "CETTO": "membro del ghetto (medio)",
+            "SETTO": "membro del ghetto (infimo)",
+            "CHETTO": "membro del ghetto (medio-basso)",
+            "BETTO": "membro del ghetto (medio-alto)",
+            "AMOGUS": "ci sta",
+            "DRIPS": "figo",
+            "CIUNTO": "accettabile/bello",
+            "UNTO": "non accettabile/da evitare",
+            "SUGO": "chiaro/bello",
+            "GUBBIO": "madre patria",
+            "LOSCO": "losco/brutto/scarso",
+            "CHECCO": "qualsiasi persona",
+            "GIGI": "qualsiasi persona",
+            "SUS": "sospetto/brutto",
+            "AMONG": "ci sta",
+            "SRETTO": "comportamento negativo",
+            "CIURRO": "carino",
+            "ROTTO": "bello/ottimo",
+            "SOTTO": "comportamento negativo",
+            "CHRIS": "componente del ghetto (qualsiasi)",
+            "ADRI": "1’ contatto del ghetto",
+            "RULLO": "testone",
+            "TZIDA DASSI": "coglione/deficiente",
+            "CHURROS": "componente del ghetto alto",
+            "LERCIO": "cattivo",
+            "DRILL": "innovativo",
+            "MYKY": "sovrappeso",
+            "MAIC": "membro del ghetto che non si vede/sente da tanto tempo",
+            "TESE": "dripposo",
+            "LAZZA": "losco",
+            "CESTO": "membro del ghetto un po’ stupido in quel momento",
+            "KELLOGS": "parola jolly (sostituibile con qualsiasi altra)",
+            "SUGO LAZZA": "situazione/avvenimento poco gradevole",
+            "SUGO TESE": "situazione/avvenimento mediocre",
+            "SUGO SMARTI(Y)E": "situazione/avvenimento stupendo",
+            "CIOTTO": "muscoloso/impegnativo",
+            "CIOTTOLO": "agg dispezzativo",
+            "ROAR GISM": "gruppo di persone poco raccomandabili/cringe",
+            "GHIOTTO": "astuto",
+            "GIGH ROBOT": "codardo",
+            "FRESCO/A": "fra/bro",
+            "FRANCY": "luca cortelli",
+            "ADAM": "2’ contatto del ghetto",
+            "TONNO": "parla parla bla bla",
+            "SCOTTEX": "2’ parola jolly",
+            "BRUH": "sorpresa negativa",
+            "MAIC DA CASA": "maic da casa",
+            "TIENI TI E’ CADUTO QUESTO": "—> POLO: cosa generica qualsiasi",
+            "GGP": "dark polo gang",
+            "MARANZA": "persona da evitare",
+            "SAN SIRO (ZONA)": "posto pieni di caps/gente strana",
+            "ROZZI": "gabbia di matti",
+            "PORCODDUROFRA": "caspiterina!",
+            "ENGAGE": "quaderno comune",
+            "SECCHIA": "posto ambito (obbiettivo)",
+            "CEPS": "troglodito",
+            "BISUNTO": "doppiamente unto",
+            "PREDA": "3’ contatto del ghetto",
+            "CONSEGNA": "inoltra",
+            "INOLTRA": "consegna",
+            "CHUPS": "errore grossolano",
+            "CESSHOT": "membro del ghetto non identificato",
+            "SESTERZI": "valuta del ghetto (STI)",
+            "SCUCCIO": "poco cuccio/playlist sara",
+            "DUZZI": "sinonimo tzida dassi (coglione)",
+            "COPS": "menzogna",
+            "FISH AND CHIPS": "cap imponente",
+            "LIUKS": "francy",
+            "TrEmOr": "CoLoNnA sOnOrA dEl GhEtTo",
+            "PLAYLIST": "lista delle ragazzine più belle della classe",
+            "TOMMY": "francy",
+            "GIOCO CON LA F": "ritrovo ricreativo del ghetto",
+            "NIGU": "½ contatto (consuetudine)",
+            "SUSNULLI": "vale bac",
+            "FISH AND COPS": "serie di bugie",
+            "CHUPSS": "bugia leggendaria",
+            "OHI MATI": "parola che appartiene alle origini del ghetto",
+            "KAHOOT": "principale divertimento del ghetto",
+            "COCO POPS": "un chups nella media",
+            "AMIORGURT": "amogus",
+            "AMOGUS ROSSO": "molto sus",
+            "AMOGUS GIALLO": "abbastanza sus",
+            "AMOGUS ARANCIONE": "è bello anche l'arancione ma non è sus quanto il giallo o il rosso/ playlist sticcia",
+            "AMOGUS BLU": "particolare, strano",
+            "AMOGUS NERO": "amogus da evitate",
+            "AMOGUS VERDE": "sus bello",
+            "LISCIO": "bell’idea, situazione. nulla di eclatante",
+            "BICIUNTO": "doppiamente ciunto",
+            "FRESCO": "qualsiasi persona",
+            "FRESH": "fresco internazionale per chi ha contatti in us",
+            "FREDDO": "un fresco più bello",
+            "WHISKY FUMANTI": "bevanda preferita del ghetto (possibilmente refrigerata)",
+            "SCOTCH": "whisky fumanti invecchiato a dovere e distillato",
+            "BENE IMMOBILE-IPOTECABILE": "boiler",
+            "ICS(x)": "affermazione negativa",
+            "ICHIS(X!)": "esclamazione negativa",
+            "LACRUCS": "l’errore",
+            "JIMMY": "qualsiasi persona",
+            "SOS, LOL": "esclamazione di stupore",
+            "BOBINE BRULLE": "livorno",
+            "CROCS": "marchio del ghetto",
+            "LACROSSE": "sport a tempolibero del ghetto",
+            "L.A. CROCS": "una scemenza",
+            "ChÈeTtO": "livello più basso del ghetto (sfigato)",
+            "LA DESTRA": "quella che ci piace",
+            "PADULE SAN MARCO": "squadra preferita del ghetto",
+            "COCO CHIPS": "chups",
+            "COPS": "cops",
+            "ANDARE A BORA BORA IN GIORNATa": "impossibile",
+            "MATTI GATTI": "4° contatto del ghetto (consuetudine)",
+            "LUCA": "persona poco affidabile; limite da roar gism",
+            "CU(L)CU(L)CU(L)CU(L)CU(L)": "figo",
+            "È COME AVERE IL BARRET ORO PER CHETTO": "cosa sensazionale, amore mistico, punto di arrivo",
+            "FERRARI": "2’ colonna sonora del ghetto",
+            "DLG 5/11/22, 00:27": "-TUTTI GLI ATTRIBUTI NEGATIVI ASSOCIATI A CHETTO SONO ABROGATI IN QUANTO VENIVANO USATI A SPROPOSITO DA PERSONE(potremmo tranquillamente usare il singolare però rimaniamo sul vago) POCO DIVERTENTI CHE ROVINANO I MEME. - SE QUALCUNO OFFENDE CHETTO CI SARÀ UNA PENA DA SCONTARE. - DICHIARIAMO QUINDI CHETTO UN UOMO LIBERO",
+            "BUSSO": "figo",
+            "BRANZINO": "branzo",
+            "ALLARMI SCOLASTICI": "",
+            "CIANO": "non pervenuto",
+            "OCRA": "sulle scale",
+            "INDACO": "sala insegnanti",
+            "COBALTO": "macchinette",
+            "MAGENTA!!!!": "a pochi centimetri dalla classe",
+            "ALLARMI GENERICI": "hanno le stesse funzioni(in gravità) di quelli scolastici",
+            "CALASCIBETTA": "minecraft mobile, calasirenetta",
+            "MAE MAWARI UKEMI": "qualcosa di incomprensibile",
+            "REI": "gay",
+            "BIGA ALATA": "cosa mai vista/detta",
+            "TECH": "armatura minecraft",
+            "STECOSANDRO": "nome di animale qualsiesi",
+            "MINECRAFT": "secondo luogo ricreativo del ghetto",
+            "CHIAMO PEDRA": "minaccia di primo grado",
+            "FORMIGINE NORD": "realm del ghetto",
+            "OMG": "terza colonna sonora del ghetto",
+            "ASSESSORE ANDREA BOSI": "sensei del ghetto",
+            "ROBERTO ADANI": "contatto del sensei del ghetto",
+            "DANIEL MONTI": "uno che se la tira, pollo",
+            "USHIRO UKEMI": "uscire",
+            "NOMI COMUNI DI MODENA (ES: PIEVEPELAGO, PEGOGNAGA)": "posti sospetti",
+            "SPIGOLA": "branzino al femminile",
+            "KIRITSU": "chichibio",
+            "AULA 104": "base di minecraft",
+            "RM-ASSESSORE": "amico molto stretto del ghetto, persona di cui fidarsi ciecamente",
+            "RM-AMBASCIATORE": "g del ghetto",
+            "RM-CONTATTO": "essere nella cerchia+requisiti precedenti",
+            "MERI MESSOR": "assessore del ghetto",
+            "JACK BARILLI": "primo(1) ambasciatore del Ghetto",
+            "AMOGUS+nome dell'agglomerato di persone": "normal gruppo whatsapp",
+            "PEDRA(CANZONE PARTE2,PARTE1)": "colonna sonora dell’assessore messori",
+            "ABROGATO": "cancellato",
+            "MATILDE PINI": "richiamo del ghetto",
+            "MEME DI DISCORD": "scherzetto di moda 4 anni fa",
+            "MEME+APP QUALSIASI": "scherzo sus",
+            "NAURU": "ambasciata del ghetto",
+            "POZZO 12": "piscine mirabilis",
+            "BRUH": "protosuono",
+            "NASCONDINO": "3° ritrovo ricreativo del ghetto",
+            "PUTTANE": "utensile da tavola",
+            "D-word": "- - -",
+            "RICCARDO TERENZI": "Avvocato del ghetto",
+            "VINZ": "kikko, 4 contatto del ghetto",
+            "FAGGOT": "arianna pagot",
+            "ANNO ALL’ESTERO": "esilio",
+            "SALSA Y PICANTE": "posata (coltello preferibilmente)",
+            "Y PICANTE": "bicchiere",
+            "PUTT PARTY": "quarto ritrovo ricreativo del ghetto",
+            "SUGO PROSCIUTTO": "primo approccio del ghetto al denaro/ solo per i grandi",
+            "BOZO": "zobo",
+            "ZOBO": "producer del ghetto",
+            "ELSA": "stendardo",
+            "STURM UND DRANG": "situazione di merda",
+            "JOBS ACT": "cambiamento radicale",
+            "BRO CHE SI È LETTO TUTTO IL LIBRO DELLA VITA": "ragazzo che sembra atteggiarsi da intellettuale del tardo Illuminismo e che frequentemente indossa una coppola.",
+            "SUGO ASCIUTTO": "sugo di sicuro non al prosciutto",
+            "PRENDO LA POLI E POI LA PIEGO": "habitué del ghetto",
+            "RAI SPORT": "d-word",
+            "KAWASAKI, CAGO, CRICO Y ESTRIPER": "rispettivamente Michele Macchi, Samuele Costanzini, Luca Cortesi e Emanuele Pini",
+            "ThE fAiR yOuTh": "sofia servadei (grosso gyattt)",
+            "PUTTANE": "gruppo di ragazze a caso (es: Clara, Sara, Alessia ecc.)",
+            "MARIA GIULA VANDELLI": "ceo del ghetto",
+            "SCORTO": "poco corto/ ragazzo albaneseragazzo albanese",
+        };
+
+        let puntiAura = 0;
+        let currentWord = '';
+
+        function getRandomWord() {
+            const words = Object.keys(definitions);
+            return words[Math.floor(Math.random() * words.length)];
+        }
+
+        function displayNewWord() {
+            currentWord = getRandomWord();
+            document.getElementById('word').innerText = "Parola: " + currentWord;
+            document.getElementById('guess').value = '';
+            document.getElementById('message').innerText = '';
+        }
+
+        function checkGuess() {
+            const guess = document.getElementById('guess').value.trim().toUpperCase();
+            const correctDefinition = definitions[currentWord].toUpperCase();
+
+            if (guess === correctDefinition) {
+                puntiAura += 100;
+                document.getElementById('message').innerText = 'Bravo, +100 punti aura';
+            } else {
+                puntiAura -= 200;
+                document.getElementById('message').innerText = `Sbagliato. Dovevi dire: ${definitions[currentWord]}. Hai perso 200 punti aura`;
+            }
+
+            document.getElementById('points').innerText = puntiAura;
+            displayNewWord();
+        }
+
+        window.onload = function() {
+            displayNewWord();
+        }
+    </script>
+</body>
+</html>
